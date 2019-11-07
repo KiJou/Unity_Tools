@@ -14,7 +14,7 @@ namespace ShaderLib.VertexPainter
 
         public bool GetEnable()
         {
-            return true;
+            return false;
         }
 
         public void OnGUI(PaintJob[] jobs)

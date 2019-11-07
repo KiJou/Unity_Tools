@@ -42,8 +42,9 @@ namespace ShaderLib.VertexPainter
         public bool HasData()
         {
             if (_stream == null)
+            {
                 return false;
-
+            }
             int vertexCount = verts.Length;
             bool hasColors = (stream.colors != null && stream.colors.Length == vertexCount);
             bool hasUV0 = (stream.uv0 != null && stream.uv0.Count == vertexCount);

@@ -10,7 +10,10 @@ namespace ShaderLib.VertexPainter
         public static GameObject MergeMeshes(PaintJob[] jobs)
         {
             if (jobs.Length == 0)
+            {
                 return null;
+            }
+
             List<CombineInstance> meshes = new List<CombineInstance>();
             for (int i = 0; i < jobs.Length; ++i)
             {
@@ -26,7 +29,7 @@ namespace ShaderLib.VertexPainter
             GameObject go = new GameObject("Combined Mesh");
             go.AddComponent<MeshRenderer>();
             var mf = go.AddComponent<MeshFilter>();
-            ;
+
             mesh.RecalculateBounds();
             mesh.UploadMeshData(false);
             mf.sharedMesh = mesh;
@@ -37,11 +40,9 @@ namespace ShaderLib.VertexPainter
             return go;
         }
 
-        // copy a mesh, and bake it's vertex stream into the mesh data. 
         public static Mesh BakeDownMesh(Mesh mesh, VertexInstanceStream stream)
         {
             var copy = GameObject.Instantiate(mesh);
-
             copy.colors = stream.colors;
             if (stream.uv0 != null && stream.uv0.Count > 0) { copy.SetUVs(0, stream.uv0); }
             if (stream.uv1 != null && stream.uv1.Count > 0) { copy.SetUVs(1, stream.uv1); }
@@ -60,13 +61,10 @@ namespace ShaderLib.VertexPainter
             {
                 copy.tangents = stream.tangents;
             }
-           ;
             copy.RecalculateBounds();
             copy.UploadMeshData(false);
-
             return copy;
         }
-
 
         public static void SaveMesh(PaintJob[] jobs)
         {
@@ -77,7 +75,6 @@ namespace ShaderLib.VertexPainter
                 {
                     path = FileUtil.GetProjectRelativePath(path);
                     Mesh firstMesh = BakeDownMesh(jobs[0].meshFilter.sharedMesh, jobs[0].stream);
-
                     AssetDatabase.CreateAsset(firstMesh, path);
 
                     for (int i = 1; i < jobs.Length; ++i)
@@ -90,5 +87,7 @@ namespace ShaderLib.VertexPainter
                 }
             }
         }
+
+
     }
 }

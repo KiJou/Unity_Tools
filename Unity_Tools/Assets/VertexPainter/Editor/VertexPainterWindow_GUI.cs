@@ -21,11 +21,11 @@ namespace ShaderLib.VertexPainter
 
         private static string[] TAB_NAMES =
         {
-            "Paint",
-            "Deform",
-            "Flow",
-            "Utility",
-            "Custom"
+            "PAINT",
+            "DEFORM",
+            "FLOW",
+            "UTILITY",
+            //"Custom"
         };
 
         static string sSwatchKey = "VertexPainter_Swatches";
@@ -204,17 +204,6 @@ namespace ShaderLib.VertexPainter
                     showTangents = GUILayout.Toggle(showTangents, "ShowTangents");
                     EditorGUILayout.EndHorizontal();
                 }
-
-                //bool oldHideMeshWireframe = hideMeshWireframe;
-                //hideMeshWireframe = !GUILayout.Toggle(!hideMeshWireframe, "Show Wireframe (ctrl-W)");
-
-                //if (hideMeshWireframe != oldHideMeshWireframe)
-                //{
-                //    for (int i = 0; i < jobs.Length; ++i)
-                //    {
-                //        SetWireframeDisplay(jobs[i].renderer, hideMeshWireframe);
-                //    }
-                //}
 
                 bool hasColors = false;
                 bool hasUV0 = false;
