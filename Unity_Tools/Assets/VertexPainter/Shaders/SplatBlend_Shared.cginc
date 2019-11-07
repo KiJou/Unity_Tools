@@ -107,7 +107,7 @@ void Flow(float2 uv, half2 flow, half speed, float intensity, out float2 uv1, ou
 void SharedVert (inout appdata_full v, out Input o) 
 {
     UNITY_INITIALIZE_OUTPUT(Input,o);
-    #if (_FLOW1 || _FLOW2 || _FLOW3 || _FLOW4 || _FLOW5)
+    #if (_FLOW1 || _FLOW2 || _FLOW3)
     o.flowDir.xy = v.texcoord.xy;
     o.flowDir.zw = v.texcoord2.xy;
     #endif
@@ -120,12 +120,6 @@ void SharedVert (inout appdata_full v, out Input o)
     #endif
     #if (_FLOW3)
     o.flowDir.xy *= _TexScale3; 
-    #endif
-    #if (_FLOW4)
-    o.flowDir.xy *= _TexScale4;
-    #endif
-    #if (_FLOW5)
-    o.flowDir.xy *= _TexScale5;
     #endif
 
     o.uv_Tex1 = v.texcoord.xy;

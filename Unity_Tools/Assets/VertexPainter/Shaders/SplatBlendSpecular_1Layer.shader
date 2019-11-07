@@ -24,29 +24,28 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_1Layer"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" }
-        LOD 200
+        Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
+        LOD 100
 
         CGPROGRAM
 
-        #pragma surface surf StandardSpecular vertex:vert fullforwardshadows
+        #pragma surface surf Standard vertex:vert fullforwardshadows
         #pragma shader_feature __ _PARALLAXMAP
         #pragma shader_feature __ _NORMALMAP
         #pragma shader_feature __ _SPECGLOSSMAP
         #pragma shader_feature __ _EMISSION
-        // flow map keywords. 
         #pragma shader_feature __ _FLOW1
         #pragma shader_feature __ _FLOWDRIFT 
         #pragma shader_feature __ _DISTBLEND
         #pragma target 3.0
-
         #include "SplatBlend_Shared.cginc"
+
         void vert(inout appdata_full v, out Input o)
         {
             SharedVert(v,o);
         }
 
-        void surf(Input IN, inout SurfaceOutputStandardSpecular o)
+        void surf(Input IN, inout SurfaceOutputStandard o)
         {
             COMPUTEDISTBLEND
 
@@ -59,40 +58,44 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_1Layer"
 #else
             fixed4 c1 = tex2D(_Tex1, uv1);
 #endif
+
 #if _PARALLAXMAP
             float parallax = _Parallax1;
             float2 offset = ParallaxOffset(c1.a, parallax, IN.viewDir);
             uv1 += offset;
-#if (_FLOW1 || _FLOW2 || _FLOW3)// || _FLOW4 || _FLOW5
+    #if (_FLOW1 || _FLOW2 || _FLOW3)
             fuv1 += offset;
             fuv2 += offset;
-#endif
+    #endif
             c1 = FETCH_TEX1(_Tex1, uv1);
 #endif
             c1 *= _Tint1;
+
 #if _SPECGLOSSMAP
             fixed4 g1 = FETCH_TEX1(_SpecGlossMap1, uv1);
             o.Smoothness = g1.a;
-            o.Specular = g1.rgb;
+            o.Metallic = g1.rgb;
 #else
             o.Smoothness = _Glossiness1;
-            o.Specular = _SpecColor1.rgb;
+            o.Metallic = _SpecColor1.rgb;
 #endif 
+
 #if _EMISSION
             fixed4 e1 = FETCH_TEX1(_Emissive1, uv1);
             o.Emission = e1.rgb * _EmissiveMult1;
 #endif
+
 #if _NORMALMAP
             fixed4 n1 = FETCH_TEX1(_Normal1, uv1);
             o.Normal = UnpackNormal(n1);
 #endif
             o.Albedo = c1.rgb;
         }
+
         ENDCG
         UsePass "G2Studios/VertexPainter/Standard/FORWARD_DELTA"
         UsePass "G2Studios/VertexPainter/Standard/SHADOWCASTER"
         UsePass "G2Studios/VertexPainter/Standard/META"
-
     }
     CustomEditor "SplatMapShaderGUI"
     FallBack "Diffuse"

@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Sample Scenes/ToonShader_Firefly.unity
-    guid: 21c8e327130c90040acf084ad8727971
+    path: Assets/VertexPainter/Examples/bakeTest.unity
+    guid: af9178b0bddae754584791097fea17e6
   m_configObjects: {}

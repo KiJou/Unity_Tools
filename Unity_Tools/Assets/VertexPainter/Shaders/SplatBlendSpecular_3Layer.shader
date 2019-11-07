@@ -53,12 +53,11 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" }
-        LOD 200
+        Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
+        LOD 100
 
         CGPROGRAM
-
-        #pragma surface surf StandardSpecular vertex:vert fullforwardshadows
+        #pragma surface surf Standard vertex:vert fullforwardshadows
         #pragma shader_feature __ _PARALLAXMAP
         #pragma shader_feature __ _NORMALMAP
         #pragma shader_feature __ _SPECGLOSSMAP
@@ -68,7 +67,6 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
         #pragma shader_feature __ _FLOWREFRACTION
         #pragma shader_feature __ _DISTBLEND
         #pragma target 3.0
-
         #include "SplatBlend_Shared.cginc"
 
         void vert(inout appdata_full v, out Input o)
@@ -76,14 +74,14 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
             SharedVert(v,o);
         }
 
-        void surf(Input IN, inout SurfaceOutputStandardSpecular o)
+        void surf(Input IN, inout SurfaceOutputStandard o)
         {
             COMPUTEDISTBLEND
-
             float2 uv1 = IN.uv_Tex1 * _TexScale1;
             float2 uv2 = IN.uv_Tex1 * _TexScale2;
             float2 uv3 = IN.uv_Tex1 * _TexScale3;
             INIT_FLOW
+
 #if _FLOWDRIFT || !_PARALLAXMAP 
             fixed4 c1 = FETCH_TEX1(_Tex1, uv1);
             fixed4 c2 = FETCH_TEX2(_Tex2, uv2);
@@ -103,28 +101,27 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
             half b2 = HeightBlend(h1, c3.a, IN.color.g, _Contrast3);
 #if _FLOW2
             b1 *= _FlowAlpha;
-#if _FLOWREFRACTION && _NORMALMAP
+    #if _FLOWREFRACTION && _NORMALMAP
             half4 rn = FETCH_TEX2(_Normal2, uv2) - 0.5;
             uv1 += rn.xy * b1 * _FlowRefraction;
-#if !_PARALLAXMAP 
+        #if !_PARALLAXMAP 
             c1 = FETCH_TEX1(_Tex1, uv1);
-#endif
-#endif
+        #endif
+    #endif
 #endif
 
 #if _FLOW3
             b2 *= _FlowAlpha;
-#if _FLOWREFRACTION && _NORMALMAP
+    #if _FLOWREFRACTION && _NORMALMAP
             half4 rn = FETCH_TEX3(_Normal3, uv3) - 0.5;
             uv1 += rn.xy * b1 * _FlowRefraction;
             uv2 += rn.xy * b2 * _FlowRefraction;
-#if !_PARALLAXMAP 
+        #if !_PARALLAXMAP 
             c1 = FETCH_TEX1(_Tex1, uv1);
             c2 = FETCH_TEX2(_Tex2, uv2);
+        #endif
+    #endif
 #endif
-#endif
-#endif
-
 
 #if _PARALLAXMAP
             float parallax = lerp(lerp(_Parallax1, _Parallax2, b1), _Parallax3, b2);
@@ -135,10 +132,10 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
             c1 = FETCH_TEX1(_Tex1, uv1);
             c2 = FETCH_TEX2(_Tex2, uv2);
             c3 = FETCH_TEX3(_Tex3, uv3);
-#if (_FLOW1 || _FLOW2 || _FLOW3)// || _FLOW4 || _FLOW5
+    #if (_FLOW1 || _FLOW2 || _FLOW3)
             fuv1 += offset;
             fuv2 += offset;
-#endif
+    #endif
 #endif
 
             fixed4 c = lerp(lerp(c1 * _Tint1, c2 * _Tint2, b1), c3 * _Tint3, b2);
@@ -149,19 +146,17 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
             fixed4 g3 = FETCH_TEX3(_SpecGlossMap3, uv3);
             fixed4 gf = lerp(lerp(g1, g2, b1), g3, b2);
             o.Smoothness = gf.a;
-            o.Specular = gf.rgb;
+            o.Metallic = gf.rgb;
 #else
             o.Smoothness = lerp(lerp(_Glossiness1, _Glossiness2, b1), _Glossiness3, b2);
-            o.Specular = lerp(lerp(_SpecColor1, _SpecColor2, b1), _SpecColor3, b2).rgb;
+            o.Metallic = lerp(lerp(_SpecColor1, _SpecColor2, b1), _SpecColor3, b2).rgb;
 #endif
 
 #if _EMISSION
             fixed4 e1 = FETCH_TEX1(_Emissive1, uv1);
             fixed4 e2 = FETCH_TEX2(_Emissive2, uv2);
             fixed4 e3 = FETCH_TEX3(_Emissive3, uv3);
-            o.Emission = lerp(lerp(e1.rgb * _EmissiveMult1,
-                e2.rgb * _EmissiveMult2, b1),
-                e3.rgb * _EmissiveMult3, b2);
+            o.Emission = lerp(lerp(e1.rgb * _EmissiveMult1, e2.rgb * _EmissiveMult2, b1), e3.rgb * _EmissiveMult3, b2);
 #endif
 
 #if _NORMALMAP
@@ -170,10 +165,9 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
             half4 n3 = (FETCH_TEX3(_Normal3, uv3));
             o.Normal = UnpackNormal(lerp(lerp(n1, n2, b1), n3, b2));
 #endif
-
             o.Albedo = c.rgb;
-
         }
+
         ENDCG
         UsePass "G2Studios/VertexPainter/Standard/FORWARD_DELTA"
         UsePass "G2Studios/VertexPainter/Standard/SHADOWCASTER"

@@ -38,12 +38,12 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_2Layer"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" }
-        LOD 200
+        Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
+        LOD 100
 
         CGPROGRAM
 
-        #pragma surface surf StandardSpecular vertex:vert fullforwardshadows
+        #pragma surface surf Standard vertex:vert fullforwardshadows
         #pragma shader_feature __ _PARALLAXMAP
         #pragma shader_feature __ _NORMALMAP
         #pragma shader_feature __ _SPECGLOSSMAP
@@ -53,7 +53,6 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_2Layer"
         #pragma shader_feature __ _FLOWREFRACTION
         #pragma shader_feature __ _DISTBLEND
         #pragma target 3.0
-
         #include "SplatBlend_Shared.cginc"
 
         void vert(inout appdata_full v, out Input o)
@@ -61,7 +60,7 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_2Layer"
             SharedVert(v,o);
         }
 
-        void surf(Input IN, inout SurfaceOutputStandardSpecular o)
+        void surf(Input IN, inout SurfaceOutputStandard o)
         {
             COMPUTEDISTBLEND
 
@@ -79,17 +78,16 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_2Layer"
             fixed4 c2 = tex2D(_Tex2, uv2);
 #endif
 
-
             half b1 = HeightBlend(c1.a, c2.a, IN.color.r, _Contrast2);
 #if _FLOW2
             b1 *= _FlowAlpha;
-#if _FLOWREFRACTION && _NORMALMAP
+    #if _FLOWREFRACTION && _NORMALMAP
             half4 rn = FETCH_TEX2(_Normal2, uv2) - 0.5;
             uv1 += rn.xy * b1 * _FlowRefraction;
-#if !_PARALLAXMAP 
+        #if !_PARALLAXMAP 
             c1 = FETCH_TEX1(_Tex1, uv1);
-#endif
-#endif
+        #endif
+    #endif
 #endif
 
 #if _PARALLAXMAP
@@ -99,10 +97,10 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_2Layer"
             uv2 += offset;
             c1 = FETCH_TEX1(_Tex1, uv1);
             c2 = FETCH_TEX2(_Tex2, uv2);
-#if (_FLOW1 || _FLOW2 || _FLOW3)// || _FLOW4 || _FLOW5
+    #if (_FLOW1 || _FLOW2 || _FLOW3)
             fuv1 += offset;
             fuv2 += offset;
-#endif
+    #endif
 #endif
 
             fixed4 c = lerp(c1 * _Tint1, c2 * _Tint2, b1);
@@ -112,10 +110,10 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_2Layer"
             fixed4 g2 = FETCH_TEX2(_SpecGlossMap2, uv2);
             fixed4 gf = lerp(g1, g2, b1);
             o.Smoothness = gf.a;
-            o.Specular = gf.rgb;
+            o.Metallic = gf.rgb;
 #else
             o.Smoothness = lerp(_Glossiness1, _Glossiness2, b1);
-            o.Specular = lerp(_SpecColor1, _SpecColor2, b1).rgb;
+            o.Metallic = lerp(_SpecColor1, _SpecColor2, b1).rgb;
 #endif
 
 #if _EMISSION
