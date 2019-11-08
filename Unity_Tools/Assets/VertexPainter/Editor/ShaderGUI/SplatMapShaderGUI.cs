@@ -12,7 +12,6 @@ public class SplatMapShaderGUI : ShaderGUI
         int i,
         MaterialProperty[] props,
         string[] keyWords,
-        Workflow workflow,
         bool hasGloss,
         bool hasSpec,
         bool isParallax,
@@ -37,24 +36,9 @@ public class SplatMapShaderGUI : ShaderGUI
         editor.TexturePropertySingleLine(new GUIContent("Albedo/Height"), albedoMap);
         editor.ShaderProperty(tint, "Tint");
         editor.TexturePropertySingleLine(new GUIContent("Normal"), normalMap);
-        if (workflow == Workflow.Metallic)
-        {
-            editor.TexturePropertySingleLine(new GUIContent("Metal(R)/Smoothness(A)"), glossinessMap);
-        }
-        else
-        {
-            editor.TexturePropertySingleLine(new GUIContent("Specular(RGB)/Gloss(A)"), specMap);
-        }
-        if (workflow == Workflow.Metallic && !hasGloss)
-        {
-            editor.ShaderProperty(smoothness, "Smoothness");
-            editor.ShaderProperty(metallic, "Metallic");
-        }
-        else if (workflow == Workflow.Specular && !hasSpec)
-        {
-            editor.ShaderProperty(smoothness, "Smoothness");
-            editor.ShaderProperty(specColor, "Specular Color");
-        }
+        editor.TexturePropertySingleLine(new GUIContent("Specular(RGB)/Gloss(A)"), specMap);
+        editor.ShaderProperty(smoothness, "Smoothness");
+        editor.ShaderProperty(specColor, "Specular Color");
         editor.TexturePropertySingleLine(new GUIContent("Emission"), emissionTex);
         editor.ShaderProperty(emissionMult, "Emissive Multiplier");
 
@@ -74,20 +58,12 @@ public class SplatMapShaderGUI : ShaderGUI
         }
     }
 
-    enum Workflow
-    {
-        Metallic = 0,
-        Specular
-    }
-
     enum FlowChannel
     {
         None = 0,
         One,
         Two,
         Three,
-        //Four,
-        //Five
     }
 
     string[] flowChannelNames = new string[]
@@ -96,8 +72,6 @@ public class SplatMapShaderGUI : ShaderGUI
         "One",
         "Two",
         "Three",
-        //"Four",
-        //"Five"
     };
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
@@ -106,28 +80,19 @@ public class SplatMapShaderGUI : ShaderGUI
         Material targetMat = materialEditor.target as Material;
         string[] keyWords = targetMat.shaderKeywords;
 
-        int layerCount = 1;
-        Workflow workflow = Workflow.Specular;
+        int layerCount = (int)FlowChannel.None;
         if (targetMat.shader.name == "G2Studios/VertexPainter/SplatBlendSpecular_1Layer")
         {
-            layerCount = 1;
+            layerCount = (int)FlowChannel.One;
         }
         else if (targetMat.shader.name == "G2Studios/VertexPainter/SplatBlendSpecular_2Layer")
         {
-            layerCount = 2;
+            layerCount = (int)FlowChannel.Two;
         }
         else if (targetMat.shader.name == "G2Studios/VertexPainter/SplatBlendSpecular_3Layer")
         {
-            layerCount = 3;
+            layerCount = (int)FlowChannel.Three;
         }
-        //else if (targetMat.shader.name == "G2Studios/VertexPainter/SplatBlendSpecular_4Layer")
-        //{
-        //    layerCount = 4;
-        //}
-        //else if (targetMat.shader.name == "G2Studios/VertexPainter/SplatBlendSpecular_5Layer")
-        //{
-        //    layerCount = 5;
-        //}
 
         FlowChannel fchannel = FlowChannel.None;
         if (keyWords.Contains("_FLOW1"))
@@ -142,14 +107,6 @@ public class SplatMapShaderGUI : ShaderGUI
         {
             fchannel = FlowChannel.Three;
         }
-        //if (keyWords.Contains("_FLOW4"))
-        //{
-        //    fchannel = FlowChannel.Four;
-        //}
-        //if (keyWords.Contains("_FLOW5"))
-        //{
-        //    fchannel = FlowChannel.Five;
-        //}
 
         bool flowDrift = keyWords.Contains("_FLOWDRIFT");
         bool flowRefraction = keyWords.Contains("_FLOWREFRACTION");
@@ -160,21 +117,15 @@ public class SplatMapShaderGUI : ShaderGUI
         bool hasDistBlend = keyWords.Contains("_DISTBLEND");
 
         EditorGUI.BeginChangeCheck();
-        Workflow oldWorkflow = workflow;
-        workflow = (Workflow)EditorGUILayout.EnumPopup("Workflow", workflow);
 
         int oldLayerCount = layerCount;
         layerCount = EditorGUILayout.IntField("Layer Count", layerCount);
-        if (oldLayerCount != layerCount || workflow != oldWorkflow)
+        if (oldLayerCount != layerCount)
         {
             if (layerCount < 1)
             {
                 layerCount = 1;
             }
-            //if (layerCount > 5)
-            //{
-            //    layerCount = 5;
-            //}
             if (layerCount > 3)
             {
                 layerCount = 3;
@@ -194,12 +145,11 @@ public class SplatMapShaderGUI : ShaderGUI
             materialEditor.ShaderProperty(distBlendMin, "Distance Blend Min");
             materialEditor.ShaderProperty(distBlendMax, "Distance Blend Max");
 
-            // make sure max is at least min
             if (distBlendMin.floatValue > distBlendMax.floatValue)
             {
                 distBlendMax.floatValue = distBlendMin.floatValue;
             }
-            // make sure max is at least 1
+
             if (distBlendMax.floatValue <= 1)
             {
                 distBlendMax.floatValue = 1;
@@ -208,8 +158,7 @@ public class SplatMapShaderGUI : ShaderGUI
 
         for (int i = 0; i < layerCount; ++i)
         {
-            DrawLayer(materialEditor, i + 1, props, keyWords, workflow, hasGloss, hasSpec, parallax, hasEmis, hasDistBlend);
-
+            DrawLayer(materialEditor, i + 1, props, keyWords, hasGloss, hasSpec, parallax, hasEmis, hasDistBlend);
             EditorGUILayout.Space();
         }
 
@@ -255,11 +204,7 @@ public class SplatMapShaderGUI : ShaderGUI
             {
                 newKeywords.Add("_NORMALMAP");
             }
-            if (hasGloss && workflow == Workflow.Metallic)
-            {
-                newKeywords.Add("_METALLICGLOSSMAP");
-            }
-            if (hasSpec && workflow == Workflow.Specular)
+            if (hasSpec)
             {
                 newKeywords.Add("_SPECGLOSSMAP");
             }

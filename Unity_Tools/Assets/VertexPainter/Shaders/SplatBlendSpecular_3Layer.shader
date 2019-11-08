@@ -125,7 +125,7 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_3Layer"
 
 #if _PARALLAXMAP
             float parallax = lerp(lerp(_Parallax1, _Parallax2, b1), _Parallax3, b2);
-            float2 offset = ParallaxOffset(lerp(lerp(c1.a, c2.a, b1), c3.a, b2), parallax, IN.viewDir);
+            float2 offset = ParallaxOffset(lerp(lerp(c1.a, c2.a, b1), c3.a, b2), parallax, IN.worldPos);
             uv1 += offset;
             uv2 += offset;
             uv3 += offset;

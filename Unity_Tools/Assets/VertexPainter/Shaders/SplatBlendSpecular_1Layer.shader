@@ -61,7 +61,7 @@ Shader "G2Studios/VertexPainter/SplatBlendSpecular_1Layer"
 
 #if _PARALLAXMAP
             float parallax = _Parallax1;
-            float2 offset = ParallaxOffset(c1.a, parallax, IN.viewDir);
+            float2 offset = ParallaxOffset(c1.a, parallax, IN.worldPos);
             uv1 += offset;
     #if (_FLOW1 || _FLOW2 || _FLOW3)
             fuv1 += offset;

@@ -3,13 +3,12 @@ struct Input
 {
     float2 uv_Tex1;
     float4 color : COLOR;
-    float3 viewDir;
-#if (_FLOW1 || _FLOW2 || _FLOW3 || _FLOW4 || _FLOW5)
+    float3 worldPos;
+    float3 worldNormal;
+#if (_FLOW1 || _FLOW2 || _FLOW3)
     float4 flowDir;
 #endif
-#if _DISTBLEND
-    float3 worldPos;
-#endif
+
 };
 
 // @NOTE
@@ -19,8 +18,6 @@ struct Input
 LAYER(1)
 LAYER(2)
 LAYER(3)
-//LAYER(4)
-//LAYER(5)
 
 half  _FlowSpeed;
 half  _FlowIntensity;
@@ -35,7 +32,7 @@ float _DistBlendMax;
 #define COMPUTEDISTBLEND  
 #endif
 
-#if (_FLOW1 || _FLOW2 || _FLOW3 || _FLOW4 || _FLOW5)
+#if (_FLOW1 || _FLOW2 || _FLOW3)
 #define INIT_FLOW half flowInterp; float2 fuv1; float2 fuv2; Flow(IN.flowDir.xy, IN.flowDir.zw, _FlowSpeed, _FlowIntensity, fuv1, fuv2, flowInterp);
 #else
 #define INIT_FLOW  
@@ -65,21 +62,6 @@ float _DistBlendMax;
 #define FETCH_TEX3(_T, _UV) tex2D(_T, _UV)
 #endif
 
-#if _FLOW4
-#define FETCH_TEX4(_T, _UV) lerp(tex2D(_T, fuv1), tex2D(_T, fuv2), flowInterp)
-#elif _DISTBLEND
-#define FETCH_TEX4(_T, _UV) lerp(tex2D(_T, _UV), tex2D(_T, _UV*_DistUVScale4), dist)
-#else
-#define FETCH_TEX4(_T, _UV) tex2D(_T, _UV)
-#endif
-
-#if _FLOW5
-#define FETCH_TEX5(_T, _UV) lerp(tex2D(_T, fuv1), tex2D(_T, fuv2), flowInterp)
-#elif _DISTBLEND
-#define FETCH_TEX5(_T, _UV) lerp(tex2D(_T, _UV), tex2D(_T, _UV*_DistUVScale5), dist)
-#else
-#define FETCH_TEX5(_T, _UV) tex2D(_T, _UV)
-#endif  
 
 half HeightBlend(half h1, half h2, half slope, half contrast)
 {
@@ -92,41 +74,36 @@ half HeightBlend(half h1, half h2, half slope, half contrast)
 
 void Flow(float2 uv, half2 flow, half speed, float intensity, out float2 uv1, out float2 uv2, out half interp)
 {
-   float2 flowVector = (flow * 2.0 - 1.0) * intensity;
-   
+   float2 flowVector = (flow * 2.0 - 1.0) * intensity;  
    float timeScale = _Time.y * speed;
    float2 phase = frac(float2(timeScale, timeScale + .5));
-
    uv1 = (uv - flowVector * half2(phase.x, phase.x));
-   uv2 = (uv - flowVector * half2(phase.y, phase.y));
-   
+   uv2 = (uv - flowVector * half2(phase.y, phase.y));   
    interp = abs(0.5 - phase.x) / 0.5;
-   
 }
 
 void SharedVert (inout appdata_full v, out Input o) 
 {
     UNITY_INITIALIZE_OUTPUT(Input,o);
-    #if (_FLOW1 || _FLOW2 || _FLOW3)
+#if (_FLOW1 || _FLOW2 || _FLOW3)
     o.flowDir.xy = v.texcoord.xy;
     o.flowDir.zw = v.texcoord2.xy;
-    #endif
+#endif
     
-    #if (_FLOW1)
+#if (_FLOW1)
     o.flowDir.xy *= _TexScale1;
-    #endif
-    #if (_FLOW2)
+#endif
+#if (_FLOW2)
     o.flowDir.xy *= _TexScale2;
-    #endif
-    #if (_FLOW3)
+#endif
+#if (_FLOW3)
     o.flowDir.xy *= _TexScale3; 
-    #endif
+#endif
 
     o.uv_Tex1 = v.texcoord.xy;
     o.color = v.color;
-    o.viewDir = float3(0,0,1);
-
-    #if _DISTBLEND
-    o.worldPos = float3(0,0,0);
-    #endif
+    float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+    float3 worldNormal = UnityObjectToWorldNormal(v.normal);
+    o.worldPos = worldPos;
+    o.worldNormal = worldNormal;
 }

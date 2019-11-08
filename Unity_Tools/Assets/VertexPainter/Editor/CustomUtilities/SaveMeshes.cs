@@ -22,7 +22,7 @@ namespace ShaderLib.VertexPainter
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.Space();
-            if (GUILayout.Button("Save Mesh"))
+            if (GUILayout.Button("Save Mesh", GUILayout.Width(200f), GUILayout.Height(30f)))
             {
                 VertexPainterUtilities.SaveMesh(jobs);
             }

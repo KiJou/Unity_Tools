@@ -595,7 +595,6 @@ namespace ShaderLib.VertexPainter
                 .Where(x => interfaceType.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
                 .Select(x => System.Activator.CreateInstance(x));
 
-
                 foreach (var o in all)
                 {
                     IVertexPainterUtility u = o as IVertexPainterUtility;
@@ -617,6 +616,7 @@ namespace ShaderLib.VertexPainter
                 if (DrawRollup(u.GetName(), false))
                 {
                     u.OnGUI(jobs);
+                    EditorGUILayout.Space();
                 }
             }
         }
@@ -629,19 +629,17 @@ namespace ShaderLib.VertexPainter
                 EndStroke();
             }
 
-            SceneView.onSceneGUIDelegate -= this.OnSceneGUI;
-            SceneView.onSceneGUIDelegate += this.OnSceneGUI;
+            SceneView.duringSceneGui -= this.OnSceneGUI;
+            SceneView.duringSceneGui += this.OnSceneGUI;
 
             Undo.undoRedoPerformed -= this.OnUndo;
             Undo.undoRedoPerformed += this.OnUndo;
             this.titleContent = new GUIContent("Vertex Paint");
             Repaint();
-
         }
 
         void OnInspectorUpdate()
         {
-            // unfortunate...
             Repaint();
         }
 
@@ -658,7 +656,7 @@ namespace ShaderLib.VertexPainter
             UpdateDisplayMode();
             showVertexShader = show;
             DestroyImmediate(VertexInstanceStream.vertexShaderMat);
-            SceneView.onSceneGUIDelegate -= this.OnSceneGUI;
+            SceneView.duringSceneGui -= this.OnSceneGUI;
         }
     }
 }

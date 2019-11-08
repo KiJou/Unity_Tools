@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SampleMat
-  m_Shader: {fileID: 4800000, guid: 9c09b2e33c3e9400f9072c70a607fa98, type: 3}
-  m_ShaderKeywords: _FLOW2 _LAYERS2 _NORMALMAP
+  m_Name: TestMat
+  m_Shader: {fileID: 4800000, guid: b8f6f8bbecfe84b8faaf58ae19a6469c, type: 3}
+  m_ShaderKeywords: _FLOW3 _LAYERS3 _NORMALMAP
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -120,7 +120,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Tex3:
-        m_Texture: {fileID: 2800000, guid: e03d9cf24087ffd428f67d9a1fe5dda2, type: 3}
+        m_Texture: {fileID: 2800000, guid: a08960dd6e8274e7f8fca616e09c48ed, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Tex4:
@@ -146,9 +146,9 @@ Material:
     - _EmissiveMult2: 1.51
     - _EmissiveMult3: 1
     - _EmissiveMult4: 1
-    - _FlowAlpha: 0.663
+    - _FlowAlpha: 0.578
     - _FlowIntensity: 0
-    - _FlowRefraction: 0.149
+    - _FlowRefraction: 0.156
     - _FlowSpeed: 0
     - _Glossiness: 0.5
     - _Glossiness1: 0.17
@@ -181,5 +181,5 @@ Material:
     - _SpecColor4: {r: 0.2, g: 0.2, b: 0.2, a: 0.2}
     - _Tint1: {r: 1, g: 1, b: 1, a: 1}
     - _Tint2: {r: 0.9811321, g: 0.79334587, b: 0.68956923, a: 1}
-    - _Tint3: {r: 1, g: 1, b: 1, a: 1}
+    - _Tint3: {r: 0.3413426, g: 0.9056604, b: 0, a: 1}
     - _Tint4: {r: 1, g: 1, b: 1, a: 1}

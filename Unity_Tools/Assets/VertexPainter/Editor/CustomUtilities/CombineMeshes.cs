@@ -21,11 +21,8 @@ namespace ShaderLib.VertexPainter
         public void OnGUI(PaintJob[] jobs)
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Combine Meshes"))
-            {
-                VertexPainterUtilities.MergeMeshes(jobs);
-            }
-            if (GUILayout.Button("Combine and Save"))
+            EditorGUILayout.Space();
+            if (GUILayout.Button("Combine and Save", GUILayout.Width(200f), GUILayout.Height(30f)))
             {
                 if (jobs.Length != 0)
                 {
@@ -42,10 +39,8 @@ namespace ShaderLib.VertexPainter
                     }
                 }
             }
+            EditorGUILayout.Space();
             EditorGUILayout.EndHorizontal();
         }
-
-
-
     }
 }
