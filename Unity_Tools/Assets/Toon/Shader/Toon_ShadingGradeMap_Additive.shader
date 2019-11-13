@@ -169,7 +169,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap_Additive"
             //#define UNITY_PASS_FORWARDBASE
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
-            #include "Lighting.cginc"
+            //#include "Lighting.cginc"
             #pragma multi_compile_fwdbase_fullshadows
             #pragma multi_compile_fog
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
@@ -195,7 +195,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap_Additive"
             //#define UNITY_PASS_FORWARDADD
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
-            #include "Lighting.cginc"
+            //#include "Lighting.cginc"
             //for Unity2018.x
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_fog

@@ -1,9 +1,6 @@
-﻿//Unitychan Toon Shader ver.2.0
-//v.2.0.7
-//nobuyuki@unity3d.com
-//https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project
-//(C)Unity Technologies Japan/UCL
-Shader "UnityChanToonShader/Toon_DoubleShadeWithFeather_TransClipping" {
+﻿
+Shader "UnityChanToonShader/Toon_DoubleShadeWithFeather_TransClipping" 
+{
     Properties {
         [HideInInspector] _simpleUI ("SimpleUI", Int ) = 0
         [HideInInspector] _utsVersion ("Version", Float ) = 2.07
@@ -173,7 +170,7 @@ Shader "UnityChanToonShader/Toon_DoubleShadeWithFeather_TransClipping" {
             #pragma fragment frag
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
-            #include "Lighting.cginc"
+            //#include "Lighting.cginc"
             #pragma multi_compile_fwdbase_fullshadows
             #pragma multi_compile_fog
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch

@@ -1,9 +1,6 @@
-﻿//Unitychan Toon Shader ver.2.0
-//v.2.0.5
-//nobuyuki@unity3d.com
-//https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project
-//(C)Unity Technologies Japan/UCL
-Shader "UnityChanToonShader/Toon_ShadingGradeMap_TransClipping" {
+﻿
+Shader "UnityChanToonShader/Toon_ShadingGradeMap_TransClipping" 
+{
     Properties {
         [Enum(OFF,0,FRONT,1,BACK,2)] _CullMode("Cull Mode", int) = 2 
         _ClippingMask ("ClippingMask", 2D) = "white" {}
@@ -162,7 +159,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap_TransClipping" {
             #pragma fragment frag
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
-            #include "Lighting.cginc"
+            //#include "Lighting.cginc"
             #pragma multi_compile_fwdbase_fullshadows
             #pragma multi_compile_fog
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch

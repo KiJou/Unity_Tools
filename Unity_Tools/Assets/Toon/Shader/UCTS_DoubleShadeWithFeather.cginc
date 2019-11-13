@@ -123,7 +123,7 @@ uniform half _DegreesAngleY;
 //DoubleShadeWithFeather
 #endif
 
-            
+uniform float4 _LightColor0;
 uniform float _GI_Intensity;
 
 struct VertexInput
@@ -194,7 +194,9 @@ float4 frag(VertexOutput i, fixed facing : VFACE) : SV_TARGET
     float3x3 tangentTransform = float3x3( i.tangentDir, i.bitangentDir, i.normalDir);
     float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
     float2 Set_UV0 = i.uv0;
-    float3 _NormalMap_var = UnpackScaleNormal(tex2D(_NormalMap, TRANSFORM_TEX(Set_UV0, _NormalMap)), _BumpScale);
+    //float3 _NormalMap_var = UnpackScaleNormal(tex2D(_NormalMap, TRANSFORM_TEX(Set_UV0, _NormalMap)), _BumpScale);
+    float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap, Set_UV0));
+    _NormalMap_var.xy *= _BumpScale;
     float3 normalLocal = _NormalMap_var.rgb;
     float3 normalDirection = normalize(mul(normalLocal, tangentTransform));
     float4 _MainTex_var = tex2D(_MainTex, TRANSFORM_TEX(Set_UV0, _MainTex));
@@ -283,7 +285,9 @@ float4 frag(VertexOutput i, fixed facing : VFACE) : SV_TARGET
     fixed _Camera_Dir = _Camera_Right.y < 0 ? -1 : 1;
     float _Rot_MatCapUV_var_ang = (_Rotate_MatCapUV*3.141592654) - _Camera_Dir*_Camera_Roll*_CameraRolling_Stabilizer;
     float2 _Rot_MatCapNmUV_var = RotateUV(Set_UV0, (_Rotate_NormalMapForMatCapUV*3.141592654), float2(0.5, 0.5), 1.0);
-    float3 _NormalMapForMatCap_var = UnpackScaleNormal(tex2D(_NormalMapForMatCap,TRANSFORM_TEX(_Rot_MatCapNmUV_var, _NormalMapForMatCap)),_BumpScaleMatcap);
+    //float3 _NormalMapForMatCap_var = UnpackScaleNormal(tex2D(_NormalMapForMatCap,TRANSFORM_TEX(_Rot_MatCapNmUV_var, _NormalMapForMatCap)),_BumpScaleMatcap);
+    float3 _NormalMapForMatCap_var = UnpackNormal(tex2D(_NormalMapForMatCap, _Rot_MatCapNmUV_var));
+    _NormalMapForMatCap_var.xy *= _BumpScaleMatcap;
     float3 viewNormal = (mul(UNITY_MATRIX_V, float4(lerp( i.normalDir, mul( _NormalMapForMatCap_var.rgb, tangentTransform ).rgb, _Is_NormalMapForMatCap ),0))).rgb;
     float3 NormalBlend_MatcapUV_Detail = viewNormal.rgb * float3(-1,-1,1);
     float3 NormalBlend_MatcapUV_Base = (mul( UNITY_MATRIX_V, float4(viewDirection,0) ).rgb*float3(-1,-1,1)) + float3(0,0,1);

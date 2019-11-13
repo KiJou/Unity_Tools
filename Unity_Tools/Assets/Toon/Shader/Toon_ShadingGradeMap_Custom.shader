@@ -189,7 +189,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap_Custom"
             #pragma fragment frag
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
-            #include "Lighting.cginc"
+            //#include "Lighting.cginc"
             #pragma multi_compile_fwdbase_fullshadows
             #pragma multi_compile_fog
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal vulkan xboxone ps4 switch
@@ -220,7 +220,7 @@ Shader "UnityChanToonShader/Toon_ShadingGradeMap_Custom"
             #pragma fragment frag
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
-            #include "Lighting.cginc"
+            //#include "Lighting.cginc"
             //#pragma multi_compile_fwdadd_fullshadows
             //#pragma multi_compile_fog
             #pragma target 3.0

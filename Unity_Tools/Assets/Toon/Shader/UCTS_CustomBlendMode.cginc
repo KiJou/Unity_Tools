@@ -89,7 +89,7 @@ float4 _GrabTexture_ST;
     uniform float _Tweak_transparency;
 #endif
 
-
+uniform float4 _LightColor0;
 uniform float _GI_Intensity;
 
 struct appdata
@@ -151,7 +151,9 @@ float4 frag(v2f i) : SV_TARGET
     float2 Set_UV0 = i.uv0;
     float2 Set_UV1 = i.uv1;
 
-    float3 _NormalMap_var = UnpackScaleNormal(tex2D(_NormalMap, TRANSFORM_TEX(i.uv0, _NormalMap)), _BumpScale);
+    //float3 _NormalMap_var = UnpackScaleNormal(tex2D(_NormalMap, TRANSFORM_TEX(i.uv0, _NormalMap)), _BumpScale);
+    float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap, Set_UV0));
+    _NormalMap_var.xy *= _BumpScale;
     float3 normalLocal = _NormalMap_var.rgb;
     float3 normalDirection = normalize(mul(normalLocal, tangentTransform)); // Perturbed normals
     float4 _MainTex_var = tex2D(_GrabTexture, TRANSFORM_TEX(Set_UV0, _GrabTexture));
