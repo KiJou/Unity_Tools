@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TestMat
+  m_Name: Test_TestMat
   m_Shader: {fileID: 4800000, guid: b8f6f8bbecfe84b8faaf58ae19a6469c, type: 3}
   m_ShaderKeywords: _FLOW3 _LAYERS3 _NORMALMAP
   m_LightmapFlags: 5
