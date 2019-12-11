@@ -1,5 +1,7 @@
-﻿Shader "XRA/IMP/Standard (Surface)" {
-	Properties {
+﻿Shader "G2Studios/Imposter/Standard" 
+{
+	Properties 
+	{
 		_Color ("Color", Color) = (1,1,1,1)
         
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
@@ -22,11 +24,12 @@
         //[HideInInspector] 
  
 	}
-	SubShader {  
+	
+    SubShader 
+    {  
 		Tags { "RenderType"="Opaque" }
 		LOD 200
-        //AlphaToMask On
-        //blend SrcAlpha OneMinusSrcAlpha  
+
         ZTest LEqual
         ZWrite on
         cull back 
@@ -35,20 +38,15 @@
 		CGPROGRAM
 		#include "ImposterCommon.cginc"
 		
-		//TODO needs proper shadow pass
 		#pragma surface surf Standard fullforwardshadows vertex:vert dithercrossfade 
-		#pragma target 4.0
+        #pragma target 3.5
 			
 		half _Glossiness;
 		half _Metallic;
 		half _Cutoff;
 		fixed4 _Color;
 		
-		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-		// #pragma instancing_options assumeuniformscaling
 		UNITY_INSTANCING_BUFFER_START(Props) 
-			// put more per-instance properties here
 		UNITY_INSTANCING_BUFFER_END(Props)
 
         struct Input 
@@ -72,8 +70,6 @@
              
             ImposterVertex(imp); 
             
-            //IMP results  
-            //v2f
             v.vertex = imp.vertex;
             
             float3 normalWorld = UnityObjectToWorldDir(v.normal.xyz);
@@ -83,7 +79,6 @@
             o.bitangentWorld = tangentToWorld[1];
             o.normalWorld = tangentToWorld[2];
             
-            //surface
             o.texCoord.xy = imp.uv;
             o.texCoord.zw = imp.grid;
             o.plane0 = imp.frame0;
@@ -93,18 +88,15 @@
 
 		void surf (Input IN, inout SurfaceOutputStandard o)
 		{
-		    //TODO make feature with custom material inspector
 		    UNITY_APPLY_DITHER_CROSSFADE(IN.screenPos.xy);
 		    
 		    ImposterData imp;
-		    //set inputs
 		    imp.uv = IN.texCoord.xy;
 		    imp.grid = IN.texCoord.zw;
 		    imp.frame0 = IN.plane0; 
 		    imp.frame1 = IN.plane1;
 		    imp.frame2 = IN.plane2;
 		    
-		    //perform texture sampling
 		    half4 baseTex;
 		    half4 normalTex;
 		    
@@ -112,34 +104,24 @@
             baseTex.a = saturate( pow(baseTex.a,_Cutoff) );
             clip(baseTex.a-_Cutoff);
             
-            //scale world normal back to -1 to 1
             half3 worldNormal = normalTex.xyz*2-1;
             
-            //this works but not ideal
             worldNormal = mul( unity_ObjectToWorld, half4(worldNormal,0) ).xyz;
             
-            half depth = normalTex.w; //maybe for pixel depth?
-            
+            half depth = normalTex.w;           
             half3 t = IN.tangentWorld;
             half3 b = IN.bitangentWorld;
             half3 n = IN.normalWorld;
         
-            //from UnityStandardCore.cginc 
             #if UNITY_TANGENT_ORTHONORMALIZE
-                n = normalize(n);
-        
-                //ortho-normalize Tangent
-                t = normalize (t - n * dot(t, n));
-                
-                //recalculate Binormal
+                n = normalize(n);        
+                t = normalize (t - n * dot(t, n));               
                 half3 newB = cross(n, t);
                 b = newB * sign (dot (newB, b));
             #endif
             half3x3 tangentToWorld = half3x3(t, b, n); 
             
-            //o well
-            o.Normal = normalize(mul(tangentToWorld, worldNormal));
-            
+            o.Normal = normalize(mul(tangentToWorld, worldNormal));            
 			o.Albedo = baseTex.rgb * _Color.rgb;
 			o.Alpha = baseTex.a;
 			o.Metallic = _Metallic;
@@ -148,7 +130,5 @@
 		}
 		ENDCG
 	}
-	//FallBack "Diffuse"
-	
-	//CustomEditor "StandardShaderGUI"
+
 }

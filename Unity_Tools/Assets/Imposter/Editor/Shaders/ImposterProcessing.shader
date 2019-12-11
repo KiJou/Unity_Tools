@@ -1,4 +1,4 @@
-﻿Shader "Hidden/XRA/IMP/ImposterProcessing"
+﻿Shader "Hidden/G2Studios/Imposter/ImposterProcessing"
 {
 	Properties
 	{

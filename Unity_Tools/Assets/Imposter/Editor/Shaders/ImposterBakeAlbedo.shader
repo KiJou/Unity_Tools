@@ -1,4 +1,4 @@
-﻿Shader "Hidden/XRA/IMP/ImposterBakeAlbedo"
+﻿Shader "Hidden/G2Studios/Imposter/ImposterBakeAlbedo"
 {
 	Properties
 	{
@@ -18,11 +18,9 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			float4 _MainTex_TexelSize;
-			
-			float4 _Color;
-			
-			half _ImposterRenderAlpha; //hacky used to toggle alpha only output only due to relying on replacement shaders
+			float4 _MainTex_TexelSize;			
+			float4 _Color;		
+			half _ImposterRenderAlpha;
 
 			struct appdata
 			{
@@ -59,8 +57,7 @@
 				if ( _ImposterRenderAlpha > 0.5 )
 				{
 				    return col.aaaa;
-				}
-				
+				}			
 				return col;
 			}
 			ENDCG

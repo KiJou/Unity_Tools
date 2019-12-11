@@ -1,4 +1,4 @@
-﻿Shader "Hidden/XRA/IMP/ImposterBakeWorldNormalDepth"
+﻿Shader "Hidden/G2Studios/Imposter/ImposterBakeWorldNormalDepth"
 {
 	Properties
 	{
