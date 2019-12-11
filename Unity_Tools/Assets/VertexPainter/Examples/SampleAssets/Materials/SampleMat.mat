@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SampleMat
-  m_Shader: {fileID: 4800000, guid: 9c09b2e33c3e9400f9072c70a607fa98, type: 3}
-  m_ShaderKeywords: _FLOW2 _LAYERS2 _NORMALMAP
+  m_Shader: {fileID: 4800000, guid: f2e083187dbe242faad27d9fa2121a46, type: 3}
+  m_ShaderKeywords: _LAYERS1 _NORMALMAP
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

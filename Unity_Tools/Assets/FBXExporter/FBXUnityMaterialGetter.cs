@@ -99,17 +99,6 @@ namespace UnityFBXExporter
                 tempObjectSb.AppendFormat("\t\t\tP: \"DiffuseColor\", \"Color\", \"\", \"A\",{0},{1},{2}", mat.color.r, mat.color.g, mat.color.b);
                 tempObjectSb.AppendLine();
 
-                // TODO: Figure out if this property can be written to the FBX file
-                //			if(mat.HasProperty("_MetallicGlossMap"))
-                //			{
-                //				Debug.Log("has metallic gloss map");
-                //				Color color = mat.GetColor("_Color");
-                //				tempObjectSb.AppendFormat("\t\t\tP: \"Specular\", \"Vector3D\", \"Vector\", \"\",{0},{1},{2}", color.r, color.g, color.r);
-                //				tempObjectSb.AppendLine();
-                //				tempObjectSb.AppendFormat("\t\t\tP: \"SpecularColor\", \"ColorRGB\", \"Color\", \" \",{0},{1},{2}", color.r, color.g, color.b);
-                //				tempObjectSb.AppendLine();
-                //			}
-
                 if (mat.HasProperty("_SpecColor"))
                 {
                     Color color = mat.GetColor("_SpecColor");
@@ -166,13 +155,6 @@ namespace UnityFBXExporter
                     tempObjectSb.AppendFormat("\t\t\tP: \"EmissiveFactor\", \"Number\", \"\", \"A\",{0}", averageColor);
                     tempObjectSb.AppendLine();
                 }
-
-                // TODO: Add these to the file based on their relation to the PBR files
-                //				tempObjectSb.AppendLine("\t\t\tP: \"AmbientColor\", \"Color\", \"\", \"A\",0,0,0");
-                //				tempObjectSb.AppendLine("\t\t\tP: \"ShininessExponent\", \"Number\", \"\", \"A\",6.31179285049438");
-                //				tempObjectSb.AppendLine("\t\t\tP: \"Ambient\", \"Vector3D\", \"Vector\", \"\",0,0,0");
-                //				tempObjectSb.AppendLine("\t\t\tP: \"Shininess\", \"double\", \"Number\", \"\",6.31179285049438");
-                //				tempObjectSb.AppendLine("\t\t\tP: \"Reflectivity\", \"double\", \"Number\", \"\",0");
 
                 tempObjectSb.AppendLine("\t\t}");
                 tempObjectSb.AppendLine("\t}");

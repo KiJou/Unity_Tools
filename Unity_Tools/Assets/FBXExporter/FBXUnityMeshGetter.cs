@@ -140,8 +140,8 @@ namespace UnityFBXExporter
 
                 // ===== WRITE THE VERTICIES =====
                 Vector3[] verticies = mesh.vertices;
-                int vertCount = mesh.vertexCount * 3; // <= because the list of points is just a list of comma seperated values, we need to multiply by three
-
+                int vertCount = mesh.vertexCount * 3;
+                
                 tempObjectSb.AppendLine("\t\tVertices: *" + vertCount + " {");
                 tempObjectSb.Append("\t\t\ta: ");
                 for (int i = 0; i < verticies.Length; i++)
@@ -238,7 +238,7 @@ namespace UnityFBXExporter
                 {
                     Color[] colors = mesh.colors;
 
-                    Dictionary<Color, int> colorTable = new Dictionary<Color, int>(); // reducing amount of data by only keeping unique colors.
+                    Dictionary<Color, int> colorTable = new Dictionary<Color, int>();
                     int idx = 0;
 
                     // build index table of all the different colors present in the mesh            
@@ -452,11 +452,6 @@ namespace UnityFBXExporter
                 tempObjectSb.AppendLine("\t\t\t\tType: \"LayerElementUV\"");
                 tempObjectSb.AppendLine("\t\t\t\tTypedIndex: 0");
                 tempObjectSb.AppendLine("\t\t\t}");
-                // TODO: Here we would add UV layer 1 for ambient occlusion UV file
-                //			tempObjectSb.AppendLine("\t\t\tLayerElement:  {");
-                //			tempObjectSb.AppendLine("\t\t\t\tType: \"LayerElementUV\"");
-                //			tempObjectSb.AppendLine("\t\t\t\tTypedIndex: 1");
-                //			tempObjectSb.AppendLine("\t\t\t}");
                 tempObjectSb.AppendLine("\t\t}");
                 tempObjectSb.AppendLine("\t}");
 
@@ -494,7 +489,6 @@ namespace UnityFBXExporter
             for (int i = 0; i < gameObj.transform.childCount; i++)
             {
                 GameObject childObject = gameObj.transform.GetChild(i).gameObject;
-
                 FBXUnityMeshGetter.GetMeshToString(childObject, materials, ref tempObjectSb, ref tempConnectionsSb, gameObj, modelId);
             }
 

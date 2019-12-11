@@ -454,8 +454,6 @@ namespace UnityFBXExporter
             }
 
             List<string> everyMaterialName = new List<string>();
-            // Structure of materials naming, is used when packaging up the package
-            // PARENTNAME_ORIGINALMATNAME.mat
             for (int i = 0; i < everyDistinctMaterial.Length; i++)
             {
                 string newName = gameObj.name + "_" + everyDistinctMaterial[i].name;
