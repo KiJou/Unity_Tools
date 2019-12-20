@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/VertexPainter/Examples/SampleScene.unity
-    guid: af9178b0bddae754584791097fea17e6
+    path: Assets/Imposter/Example/Example.unity
+    guid: 3b47eafd11ccc6e41b19a29d9cc3f424
   m_configObjects: {}

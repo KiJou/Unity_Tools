@@ -32,11 +32,12 @@
 
         ZTest LEqual
         ZWrite on
-        cull back 
-        blend off
+        Cull Off
         
 		CGPROGRAM
-		#include "ImposterCommon.cginc"
+        #include "UnityCG.cginc"
+        #include "ImposterUtil.cginc"
+        #include "ImposterCommon.cginc"
 		
 		#pragma surface surf Standard fullforwardshadows vertex:vert dithercrossfade 
         #pragma target 3.5
@@ -44,7 +45,7 @@
 		half _Glossiness;
 		half _Metallic;
 		half _Cutoff;
-		fixed4 _Color;
+        fixed4 _Color;
 		
 		UNITY_INSTANCING_BUFFER_START(Props) 
 		UNITY_INSTANCING_BUFFER_END(Props)
@@ -64,14 +65,12 @@
         void vert (inout appdata_full v, out Input o)
         {
             UNITY_INITIALIZE_OUTPUT(Input, o);
-            ImposterData imp;
+            appData imp;
             imp.vertex = v.vertex;
             imp.uv = v.texcoord.xy;
              
-            ImposterVertex(imp); 
-            
+            ImposterVertex(imp);
             v.vertex = imp.vertex;
-            
             float3 normalWorld = UnityObjectToWorldDir(v.normal.xyz);
             float3 tangentWorld = UnityObjectToWorldDir(v.tangent.xyz);
             float3x3 tangentToWorld = CreateTangentToWorldPerVertex(normalWorld, tangentWorld, v.tangent.w);
@@ -90,7 +89,7 @@
 		{
 		    UNITY_APPLY_DITHER_CROSSFADE(IN.screenPos.xy);
 		    
-		    ImposterData imp;
+		    appData imp;
 		    imp.uv = IN.texCoord.xy;
 		    imp.grid = IN.texCoord.zw;
 		    imp.frame0 = IN.plane0; 
@@ -98,14 +97,12 @@
 		    imp.frame2 = IN.plane2;
 		    
 		    half4 baseTex;
-		    half4 normalTex;
-		    
+		    half4 normalTex;		    
 		    ImposterSample(imp, baseTex, normalTex );
             baseTex.a = saturate( pow(baseTex.a,_Cutoff) );
             clip(baseTex.a-_Cutoff);
             
-            half3 worldNormal = normalTex.xyz*2-1;
-            
+            half3 worldNormal = normalTex.xyz*2-1;            
             worldNormal = mul( unity_ObjectToWorld, half4(worldNormal,0) ).xyz;
             
             half depth = normalTex.w;           

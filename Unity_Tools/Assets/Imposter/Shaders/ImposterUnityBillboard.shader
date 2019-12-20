@@ -17,16 +17,21 @@
         _ImposterFullSphere ("Full Sphere", float) = 0
 	}
 
-    SubShader{
-        Tags { "IgnoreProjector" = "True" "RenderType" = "TreeBillboard" }
 
+    SubShader
+    {
+        Tags {
+            "IgnoreProjector" = "True" 
+            "RenderType" = "TransparentCutout" 
+            "Queue" = "AlphaTest" 
+        }
 
         ZWrite On 
-        Cull back
+        Cull Off
 
         CGPROGRAM
         #include "UnityCG.cginc"
-        #include "UnityBuiltin3xTreeLibrary.cginc"
+        #include "ImposterUtil.cginc"
         #include "ImposterCommon.cginc"
           
         #pragma surface surf Standard fullforwardshadows vertex:vert
@@ -35,8 +40,8 @@
         half _Glossiness;
         half _Metallic;
         half _Cutoff;
-            
-    
+        fixed4 _Color;
+               
         UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_INSTANCING_BUFFER_END(Props)
     
@@ -54,7 +59,7 @@
         void vert (inout appdata_full v, out Input o)
         {
             UNITY_INITIALIZE_OUTPUT(Input, o);
-            ImposterData imp;
+            appData imp;
             imp.vertex.xyz = float3( (v.vertex.x*2-1)*0.5, 0, (v.vertex.y*2-1)*0.5 );
             imp.vertex.w = v.vertex.w;
             imp.uv = v.texcoord.xy;
@@ -81,7 +86,7 @@
             
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            ImposterData imp;
+            appData imp;
             imp.uv = IN.texCoord.xy;
             imp.grid = IN.texCoord.zw;
             imp.frame0 = IN.plane0; 
@@ -112,7 +117,7 @@
             half3x3 tangentToWorld = half3x3(t, b, n); 
                 
             o.Normal = normalize(mul(tangentToWorld, worldNormal));               
-            o.Albedo = baseTex.rgb;
+            o.Albedo = baseTex.rgb * _Color.rgb;
             o.Alpha = baseTex.a;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
