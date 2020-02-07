@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/GPUParticles/Stream/Scenes/Example.unity
-    guid: 75c8abdb729514f3088ebceac71bcdec
+    path: Assets/ShadowMap/Scene.unity
+    guid: d9ad9eaa61bdb42b4a84b34f2dfeff2c
   m_configObjects: {}

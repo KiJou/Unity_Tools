@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: ParticleMaterial
   m_Shader: {fileID: 4800000, guid: 5fe7f8e1e690ad947b98019d66f6fd0c, type: 3}
   m_ShaderKeywords: 
@@ -23,7 +24,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 15ae149a42f282e43b8a6d48ee7b47bc, type: 3}
+        m_Texture: {fileID: 2800000, guid: df66629fd272a4444af813991ecf895f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpriteTex:
@@ -36,7 +37,7 @@ Material:
     - _ScaleX: 2
     - _ScaleY: 2
     - _Size: 3
-    - _SizeMul: 0.3
+    - _SizeMul: 0.9
     - _WindQuality: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
