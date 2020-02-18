@@ -66,7 +66,7 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _CutOff: 0.5
-    - _Cutoff: 0.99
+    - _Cutoff: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
@@ -82,6 +82,7 @@ Material:
     - _ShadowValue: 0.458
     - _ShouldScroll: 0
     - _SmoothnessTextureChannel: 0
+    - _SpecPower: 4.87
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
@@ -92,6 +93,7 @@ Material:
     - _YSpeed: 10
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.30980393, g: 0.06666667, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0, g: 0.5191617, b: 1, a: 0.54509807}
+    - _ShadowColor: {r: 0.33962262, g: 0.07308335, b: 0, a: 0.49803922}
+    - _SpecColor: {r: 0.3301887, g: 0.2786272, b: 0.2289516, a: 1}

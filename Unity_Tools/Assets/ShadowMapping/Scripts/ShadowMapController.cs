@@ -10,23 +10,26 @@ namespace ShaderLib.ShadowMapping
     [RequireComponent(typeof(Camera))]
     public class ShadowMapController : MonoBehaviour
     {
-        public enum ShadowType
-        {
-            NONE,
-            HARD,
-            VARIANCE
-        }
+        //public enum ShadowType
+        //{
+        //    NONE,
+        //    HARD,
+        //    VARIANCE
+        //}
 
         private Shader depthShader;
 
         [SerializeField]
         private int resolution = 512;
 
-        [SerializeField][Range(0, 1)]
-        private float varianceShadowExpansion = 0.3f;
+        //[SerializeField][Range(0, 1)]
+        //private float varianceShadowExpansion = 0.3f;
 
-        [SerializeField]
-        private ShadowType shadowType = ShadowType.HARD;
+        [SerializeField][Range(0, 1)]
+        private float maxShadowIntensity = 1.0f;
+
+        //[SerializeField]
+        //private ShadowType shadowType = ShadowType.HARD;
 
         [SerializeField]
         private FilterMode filterMode = FilterMode.Bilinear;
@@ -36,7 +39,6 @@ namespace ShaderLib.ShadowMapping
         private Camera shadowCamera;
         private RenderTexture targetTexture;
         private List<Graphic.ShadowMapReceiver> shadowMapReceiverList = new List<Graphic.ShadowMapReceiver>();
-
 
 
         private void OnEnable()
@@ -56,7 +58,7 @@ namespace ShaderLib.ShadowMapping
                 DestroyImmediate(this.targetTexture);
                 this.targetTexture = null;
             }
-            ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
+            //ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
         }
 
         private void OnDestroy()
@@ -87,7 +89,7 @@ namespace ShaderLib.ShadowMapping
 
         private void Update()
         {
-            this.depthShader = this.depthShader ? this.depthShader : Shader.Find("G2Studios/Shadow/ShadowMap");
+            this.depthShader = this.depthShader ? this.depthShader : Shader.Find("G2Studios/ShadowMapping/ShadowMap");
 
             UpdateRenderTexture();
             UpdateShadowCameraPos();
@@ -104,8 +106,8 @@ namespace ShaderLib.ShadowMapping
                 return;
             }
 
-            ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
-            Shader.EnableKeyword(ToKeyword(this.shadowType));
+            //ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
+            //Shader.EnableKeyword(ToKeyword(this.shadowType));
 
             var worldToView = this.shadowCamera.worldToCameraMatrix;
             var localToView = this.shadowCamera.transform.worldToLocalMatrix;
@@ -120,7 +122,8 @@ namespace ShaderLib.ShadowMapping
             Shader.SetGlobalTexture("_ShadowTex", this.targetTexture);
             Shader.SetGlobalMatrix("_LightMatrix", localToView);
             Shader.SetGlobalMatrix("_LightVP", lightVP);
-            Shader.SetGlobalFloat("_VarianceShadowExpansion", this.varianceShadowExpansion);
+            Shader.SetGlobalFloat("_MaxShadowIntensity", this.maxShadowIntensity);
+            //Shader.SetGlobalFloat("_VarianceShadowExpansion", this.varianceShadowExpansion);
 
             Vector4 size = Vector4.zero;
             size.y = this.shadowCamera.orthographicSize * 2;
@@ -179,24 +182,24 @@ namespace ShaderLib.ShadowMapping
             return rt;
         }
 
-        private void ForAllKeywords(Action<ShadowType> func)
-        {
-            func(ShadowType.HARD);
-            func(ShadowType.VARIANCE);
-        }
+        //private void ForAllKeywords(Action<ShadowType> func)
+        //{
+        //    func(ShadowType.HARD);
+        //    func(ShadowType.VARIANCE);
+        //}
 
-        private string ToKeyword(ShadowType shadowType)
-        {
-            if (shadowType == ShadowType.HARD)
-            {
-                return "HARD_SHADOWS";
-            }
-            if (shadowType == ShadowType.VARIANCE)
-            {
-                return "VARIANCE_SHADOWS";
-            }
-            return "";
-        }
+        //private string ToKeyword(ShadowType shadowType)
+        //{
+        //    if (shadowType == ShadowType.HARD)
+        //    {
+        //        return "HARD_SHADOWS";
+        //    }
+        //    if (shadowType == ShadowType.VARIANCE)
+        //    {
+        //        return "VARIANCE_SHADOWS";
+        //    }
+        //    return "";
+        //}
 
         private void GetRenderersExtents(List<Renderer> renderers, Transform frame, out Vector3 center, out Vector3 extents)
         {
@@ -246,21 +249,7 @@ namespace ShaderLib.ShadowMapping
         {
             if (this.targetTexture != null)
             {
-                GUI.DrawTextureWithTexCoords(new Rect(0, 0, 256, 256), this.targetTexture, new Rect(0, 0, 1, 1), false);
-            }
-
-            if (GUI.Button(new Rect(Screen.width - 150, 0, 150, 100), "HARD"))
-            {
-                this.shadowType = ShadowType.HARD;
-                ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
-                Shader.EnableKeyword(ToKeyword(this.shadowType));
-            }
-
-            if (GUI.Button(new Rect(Screen.width - 150, 100, 150, 100), "VARIANCE"))
-            {
-                this.shadowType = ShadowType.VARIANCE;
-                ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
-                Shader.EnableKeyword(ToKeyword(this.shadowType));
+                GUI.DrawTextureWithTexCoords(new Rect(0, 0, 400, 400), this.targetTexture, new Rect(0, 0, 1, 1), false);
             }
         }
 
