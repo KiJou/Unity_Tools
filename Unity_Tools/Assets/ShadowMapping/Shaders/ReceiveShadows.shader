@@ -4,7 +4,9 @@
     {
         [Enum(Off, 0, On, 1)] _ZWrite("ZWrite", Float) = 1.0
         _Color("Main Color", Color) = (1,1,1,1)
+        _ShadowColor("Receive Shadow Color", Color) = (0.75,0.75,0.75,1)
         _MainTex("Texture", 2D) = "white" {}
+        _Cutoff("Cutoff", Range(0, 1)) = 0.83
 	}
 
     SubShader 
@@ -13,7 +15,6 @@
 
         Pass 
 		{        
-            Lighting On
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite[_ZWrite]
 
@@ -22,16 +23,18 @@
             #pragma fragment frag
             #pragma multi_compile _ HARD_SHADOWS VARIANCE_SHADOWS
             #include "UnityCG.cginc"
+            #include "AutoLight.cginc"
 
             float4 _Color;
-            sampler2D _MainTex; float4 _MainTex_ST;
-            sampler2D _ShadowTex;
-            float4x4 _LightMatrix;
-            float4 _ShadowTexScale;
-            float _Cutoff;
+            sampler2D _MainTex; float4 _MainTex_ST;   
 
-            float _MaxShadowIntensity;
-            float _VarianceShadowExpansion;
+            float4x4 _LightMatrix;
+            float4x4 _LightVP;
+            float4 _ShadowTexScale;
+            float _Cutoff, _VarianceShadowExpansion;
+            sampler2D _ShadowTex;
+            float4 _ShadowColor;
+            //UNITY_DECLARE_SHADOWMAP(_ShadowTex);
 
             float3 CTIllum(float4 wVertex, float3 normal)
             {
@@ -97,31 +100,26 @@
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
-                float4 wPos : TEXCOORD1;
+                float4 worldPos : TEXCOORD1;
                 float depth : TEXCOORD2;
+                float4 shadowVertex : TEXCOORD3;
             };
 
             v2f vert (appdata_base v)
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.wPos = mul(unity_ObjectToWorld, v.vertex);
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 o.normal = v.normal;
                 o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.shadowVertex = mul(_LightVP, v.vertex);
                 COMPUTE_EYEDEPTH(o.depth);
                 return o; 
             }
 
             fixed4 frag (v2f i) : SV_Target
 			{
-                float4 texColor = tex2D(_MainTex, i.uv);
-                float4 color = _Color;
-                color = float4(CTIllum(i.wPos, i.normal), color.a);
-                color *= texColor;
-
-                // SHADOWS
-                // light座標までの距離
-                float4 lightSpacePos = mul(_LightMatrix, i.wPos);
+                float4 lightSpacePos = mul(_LightMatrix, i.worldPos);
                 float3 lightSpaceNorm = normalize(mul(_LightMatrix, mul(unity_ObjectToWorld, i.normal)));
                 float depth = lightSpacePos.z / _ShadowTexScale.z;
 
@@ -129,49 +127,36 @@
                 uv += _ShadowTexScale.xy / 2;
                 uv /= _ShadowTexScale.xy;
 
-                float shadowIntensity = 0;
+                float shadowIntensity = 1;
                 float2 offset = lightSpaceNorm * _ShadowTexScale.w;
-                float4 samp = tex2D(_ShadowTex, uv + offset);
-
+                float4 lightDepth = tex2D(_ShadowTex, uv + offset);
 
 #ifdef HARD_SHADOWS
-                float sDepth = samp.r;
+                float sDepth = lightDepth.r;
                 shadowIntensity = step(sDepth, depth - _ShadowTexScale.w);
-                //shadowIntensity = sDepth;
 #endif
 
 #ifdef VARIANCE_SHADOWS
-                // The moments of the fragment live in "_shadowTex"
-                float2 s = samp.rg;
-
-                // テクセル全体の平均/予想深度および深度^ 2
-                // E(x) and E(x^2)
+                float2 s = lightDepth.rg;
                 float x = s.r; 
-                float x2 = s.g;
-                
-                // テクセルの分散をに基づいて計算
-                // the formula var = E(x^2) - E(x)^2
+                float x2 = s.g;               
                 float var = x2 - x*x; 
-
-                // 基本深度に基づいて初期確率を計算
-                // 深度がxより近い場合、フラグメントは100％
-                // 点灯する確率（p = 1）
-                float p = depth <= x;
-                
-                // チェビシェフの不等式を使用して確率の上限を計算する
+                float p = depth <= x;                
                 float delta = depth - x;
                 float p_max = var / (var + delta*delta);
-
-                // 光のにじみを軽減
                 float amount = _VarianceShadowExpansion;
                 p_max = clamp( (p_max - amount) / (1 - amount), 0, 1);
                 shadowIntensity = 1 - max(p, p_max);
 #endif
-                float value = 1- shadowIntensity * _MaxShadowIntensity;
+                float value = shadowIntensity;
+                float4 color = tex2D(_MainTex, i.uv) * _Color;
                 color.xyz *= value;
+                if (value <= _Cutoff)
+                {
+                    color += _ShadowColor;
+                }
                 color.xyz += UNITY_LIGHTMODEL_AMBIENT.xyz;
                 return color;
-
             }
             ENDCG
         }

@@ -2,60 +2,49 @@
 {
     Properties
     {
-        _ShadowColor("Main Color", Color) = (1,1,1,1)
         _MainTex("Texture", 2D) = "white" {}
     }
 
-    SubShader 
+    SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType" = "Opaque" }
 
         Pass
         {
             CGPROGRAM
             #include "UnityCG.cginc"
-            #include "DitherFunctions.cginc"
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ DRAW_TRANSPARENT_SHADOWS
 
-            sampler2D _MainTex;
-            float4 _Color;
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+            sampler2D _CameraDepthTexture;
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                float2 depth: TEXCOORD0;
+                float4 projPos : TEXCOORD1;
             };
 
-
-            v2f vert(appdata v)
+            v2f vert(appdata_base v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
+                o.depth = o.vertex.zw;
+                o.projPos = ComputeScreenPos(o.vertex);
+                //o.depth = COMPUTE_DEPTH_01;
                 return o;
             }
 
-            fixed4 frag(v2f i) : SV_Target
+            fixed4 frag(v2f i) : COLOR
             {
-                float4 col = _Color;
-#if defined(DRAW_TRANSPARENT_SHADOWS)
-                ditherClip(i.vertex, col.a);
-#else
-                if (col.a < 0.5)
-                {
-                    discard;
-                }
-#endif
-                float depth = 1 - i.vertex.z;
-                return float4(depth, pow(depth, 2), 0, 0);
+                return (EncodeFloatRGBA(min(i.depth,0.9999991)));
+
+                //return EncodeFloatRGBA(i.depth.x / i.depth.y);
+
+                // old
+                //float depth = 1 - i.vertex.z;
+                //float4 finalColor = float4(depth, pow(depth, 2), 0, 0);
+                //return finalColor;
             }
             ENDCG
         }

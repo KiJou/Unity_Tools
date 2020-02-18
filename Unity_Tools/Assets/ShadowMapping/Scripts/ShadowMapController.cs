@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
-
+using UnityEngine.Rendering;
 
 namespace ShaderLib.ShadowMapping
 {
@@ -20,18 +20,24 @@ namespace ShaderLib.ShadowMapping
         private Shader depthShader;
 
         [SerializeField]
-        private int resolution = 1024;
+        private int resolution = 512;
 
-        [Range(0, 1)]
-        public float maxShadowIntensity = 1.0f;
+        [SerializeField][Range(0, 1)]
+        private float varianceShadowExpansion = 0.3f;
 
-        [Range(0, 1)]
-        public float varianceShadowExpansion = 0.3f;
-        public ShadowType shadowType = ShadowType.HARD;
-        public FilterMode filterMode = FilterMode.Bilinear;
+        [SerializeField]
+        private ShadowType shadowType = ShadowType.HARD;
+
+        [SerializeField]
+        private FilterMode filterMode = FilterMode.Bilinear;
+
+        public LayerMask casterLayer;
+
         private Camera shadowCamera;
         private RenderTexture targetTexture;
         private List<Graphic.ShadowMapReceiver> shadowMapReceiverList = new List<Graphic.ShadowMapReceiver>();
+
+
 
         private void OnEnable()
         {
@@ -48,7 +54,7 @@ namespace ShaderLib.ShadowMapping
             if (this.targetTexture)
             {
                 DestroyImmediate(this.targetTexture);
-                targetTexture = null;
+                this.targetTexture = null;
             }
             ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
         }
@@ -58,15 +64,37 @@ namespace ShaderLib.ShadowMapping
             OnDisable();
         }
 
+        public void SetUpShadowCam()
+        {
+            if (this.shadowCamera)
+            {
+                return;
+            }
+            GameObject go = new GameObject("ShadowCamera");
+            go.hideFlags = HideFlags.DontSave;
+
+            this.shadowCamera = go.AddComponent<Camera>();
+            this.shadowCamera.orthographic = true;
+            this.shadowCamera.nearClipPlane = 0;
+            this.shadowCamera.enabled = false;
+            this.shadowCamera.backgroundColor = Color.black;
+            this.shadowCamera.clearFlags = CameraClearFlags.SolidColor;
+            this.shadowCamera.depth = -2;
+            this.shadowCamera.renderingPath = RenderingPath.Forward;
+            this.shadowCamera.depthTextureMode = DepthTextureMode.Depth;
+            this.shadowCamera.cullingMask = this.casterLayer;
+        }
+
         private void Update()
         {
             this.depthShader = this.depthShader ? this.depthShader : Shader.Find("G2Studios/Shadow/ShadowMap");
+
             UpdateRenderTexture();
             UpdateShadowCameraPos();
             UpdateShaderValues();
 
             this.shadowCamera.targetTexture = this.targetTexture;
-            this.shadowCamera.RenderWithShader(this.depthShader, "");
+            this.shadowCamera.RenderWithShader(this.depthShader, "RenderType");
         }
 
         private void UpdateShaderValues()
@@ -78,10 +106,22 @@ namespace ShaderLib.ShadowMapping
 
             ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
             Shader.EnableKeyword(ToKeyword(this.shadowType));
+
+            var worldToView = this.shadowCamera.worldToCameraMatrix;
+            var localToView = this.shadowCamera.transform.worldToLocalMatrix;
+            var projection = GL.GetGPUProjectionMatrix(this.shadowCamera.projectionMatrix, false);
+            var lightVP = projection * worldToView;
+            var biasMat = new Matrix4x4();
+            biasMat.SetRow(0, new Vector4(0.5f, 0.0f, 0.0f, 0.5f));
+            biasMat.SetRow(1, new Vector4(0.0f, 0.5f, 0.0f, 0.5f));
+            biasMat.SetRow(2, new Vector4(0.0f, 0.0f, 0.5f, 0.5f));
+            biasMat.SetRow(3, new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
             Shader.SetGlobalTexture("_ShadowTex", this.targetTexture);
-            Shader.SetGlobalMatrix("_LightMatrix", this.shadowCamera.transform.worldToLocalMatrix);
-            Shader.SetGlobalFloat("_MaxShadowIntensity", this.maxShadowIntensity);
+            Shader.SetGlobalMatrix("_LightMatrix", localToView);
+            Shader.SetGlobalMatrix("_LightVP", lightVP);
             Shader.SetGlobalFloat("_VarianceShadowExpansion", this.varianceShadowExpansion);
+
             Vector4 size = Vector4.zero;
             size.y = this.shadowCamera.orthographicSize * 2;
             size.x = this.shadowCamera.aspect * size.y;
@@ -111,27 +151,27 @@ namespace ShaderLib.ShadowMapping
             {
                 return;
             }
-            Camera cam = this.shadowCamera;
             Light l = FindObjectOfType<Light>();
-            cam.transform.position = l.transform.position;
-            cam.transform.rotation = l.transform.rotation;
-            cam.transform.LookAt(cam.transform.position + cam.transform.forward, cam.transform.up);
+            var trans = this.shadowCamera.transform;
+            trans.position = l.transform.position;
+            trans.rotation = l.transform.rotation;
+            trans.LookAt(trans.position + trans.forward, trans.up);
 
             Vector3 center, extents;
             List<Renderer> renderers = new List<Renderer>();
             renderers.AddRange(FindObjectsOfType<Renderer>());
-            GetRenderersExtents(renderers, cam.transform, out center, out extents);
+            GetRenderersExtents(renderers, trans, out center, out extents);
             center.z -= extents.z / 2;
-            cam.transform.position = cam.transform.TransformPoint(center);
-            cam.nearClipPlane = 0;
-            cam.farClipPlane = extents.z;
-            cam.aspect = extents.x / extents.y;
-            cam.orthographicSize = extents.y / 2;
+            trans.position = trans.TransformPoint(center);
+            this.shadowCamera.nearClipPlane = 0;
+            this.shadowCamera.farClipPlane = extents.z;
+            this.shadowCamera.aspect = extents.x / extents.y;
+            this.shadowCamera.orthographicSize = extents.y / 2;
         }
 
         private RenderTexture CreateTargetTexture()
         {
-            RenderTexture rt = new RenderTexture(this.resolution, this.resolution, 16, RenderTextureFormat.ARGBFloat);
+            RenderTexture rt = new RenderTexture(this.resolution, this.resolution, 16, RenderTextureFormat.ARGB32);
             rt.filterMode = this.filterMode;
             rt.wrapMode = TextureWrapMode.Clamp;
             rt.enableRandomWrite = true;
@@ -202,22 +242,28 @@ namespace ShaderLib.ShadowMapping
             }
         }
 
-        public void SetUpShadowCam()
+        private void OnGUI()
         {
-            if (this.shadowCamera)
+            if (this.targetTexture != null)
             {
-                return;
+                GUI.DrawTextureWithTexCoords(new Rect(0, 0, 256, 256), this.targetTexture, new Rect(0, 0, 1, 1), false);
             }
-            GameObject go = new GameObject("ShadowCamera");
-            go.hideFlags = HideFlags.DontSave;
 
-            this.shadowCamera = go.AddComponent<Camera>();
-            this.shadowCamera.orthographic = true;
-            this.shadowCamera.nearClipPlane = 0;
-            this.shadowCamera.enabled = false;
-            this.shadowCamera.backgroundColor = new Color(0, 0, 0, 0);
-            this.shadowCamera.clearFlags = CameraClearFlags.SolidColor;
+            if (GUI.Button(new Rect(Screen.width - 150, 0, 150, 100), "HARD"))
+            {
+                this.shadowType = ShadowType.HARD;
+                ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
+                Shader.EnableKeyword(ToKeyword(this.shadowType));
+            }
+
+            if (GUI.Button(new Rect(Screen.width - 150, 100, 150, 100), "VARIANCE"))
+            {
+                this.shadowType = ShadowType.VARIANCE;
+                ForAllKeywords(s => Shader.DisableKeyword(ToKeyword(s)));
+                Shader.EnableKeyword(ToKeyword(this.shadowType));
+            }
         }
+
     }
 
 
