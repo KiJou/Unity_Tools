@@ -1,10 +1,8 @@
-﻿//Unitychan Toon Shader ver.2.0
-//v.2.0.5
-//nobuyuki@unity3d.com
-//https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project
-//(C)Unity Technologies Japan/UCL
-Shader "UnityChanToonShader/Toon_ShadingGradeMap_TransClipping" {
-    Properties {
+﻿
+Shader "UnityChanToonShader/Toon_ShadingGradeMap_TransClipping" 
+{
+    Properties 
+    {
         [Enum(OFF,0,FRONT,1,BACK,2)] _CullMode("Cull Mode", int) = 2 
         _ClippingMask ("ClippingMask", 2D) = "white" {}
         [MaterialToggle] _IsBaseMapAlphaAsClippingMask ("IsBaseMapAlphaAsClippingMask", Float ) = 0
